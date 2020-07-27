@@ -1,5 +1,5 @@
-# VAM script for Earth Observation data analysis
-A list of script for Earth Observation data analysis that frequently used by VAM
+# VAM script for Earth Observation and Socio-Economic data analysis
+A list of script for earth observation and socio economic data analysis that frequently used by VAM
 
 ## Authors
 - Rochelle OHagan (spatialexplore)
