@@ -5,3 +5,4 @@ A list of script for earth observation and socio economic data analysis that fre
 - Rochelle OHagan (spatialexplore)
 - Dio Dinta Dafrista (diodinta)
 - Benny Istanto (bennyistanto)
+- Kautsar Tandipangan (kautsarfahrezat)
