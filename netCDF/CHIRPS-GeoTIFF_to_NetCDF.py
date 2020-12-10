@@ -85,8 +85,6 @@ pcpo.geospatial_lat_min = -50.
 pcpo.geospatial_lat_max = 50.
 pcpo.geospatial_lon_min = -180.
 pcpo.geospatial_lon_max = 180.
-pcpo.long_name = 'Climate Hazards group InfraRed Precipitation with Stations'
-pcpo.standard_name = 'convective precipitation rate'
 #pcpo.grid_mapping = 'crs'
 pcpo.set_auto_maskandscale(False)
 
