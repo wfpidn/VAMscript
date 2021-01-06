@@ -66,12 +66,12 @@ lato.long_name = 'latitude'
 lato.axis = 'Y'
 
 # Create container variable for CRS: lon/lat WGS84 datum
-#crso = nco.createVariable('crs','i4')
-#csro.long_name = 'Lon/Lat Coords in WGS84'
-#crso.grid_mapping_name='latitude_longitude'
-#crso.longitude_of_prime_meridian = 0.0
-#crso.semi_major_axis = 6378137.0
-#crso.inverse_flattening = 298.257223563
+crso = nco.createVariable('crs','i4')
+crso.long_name = 'Lon/Lat Coords in WGS84'
+crso.grid_mapping_name='latitude_longitude'
+crso.longitude_of_prime_meridian = 0.0
+crso.semi_major_axis = 6378137.0
+crso.inverse_flattening = 298.257223563
 
 # Create float variable for precipitation data, with chunking
 pcpo = nco.createVariable('precip', 'f4',  ('time', 'lat', 'lon'), 
@@ -85,7 +85,7 @@ pcpo.geospatial_lat_min = -50.
 pcpo.geospatial_lat_max = 50.
 pcpo.geospatial_lon_min = -180.
 pcpo.geospatial_lon_max = 180.
-#pcpo.grid_mapping = 'crs'
+pcpo.grid_mapping = 'crs'
 pcpo.set_auto_maskandscale(False)
 
 # Additional attributes
