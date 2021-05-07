@@ -114,12 +114,6 @@ save, replace
 
 drop com_code
 
-/* sumber masalah
-keep if mkt_type_code == 1
-
-drop mkt_type_code
-*/
-
 ren market MarketName
 ren province Province
 ren district District
