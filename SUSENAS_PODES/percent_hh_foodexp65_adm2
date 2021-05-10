@@ -1,0 +1,29 @@
+clear
+set mem 300m
+capture log close
+set more off
+set linesize 255
+pause off
+
+/**	
+Percentage of HH with Food Expenditure > 65% in Total Expenditure
+**/
+
+** 2019
+use  R101*  R102*  EXPEND* FOOD* NONFOOD*  WERT using "FolderPath\blok43_diseminasi.dta", clear
+
+gen id_sus20= R101*100+ R102
+gen wehh=round(WERT)
+destring, replace
+
+gen hh20=1
+gen hh_food65=1 if (FOOD/EXPEND)> 0.65
+
+collapse (sum) hh20 hh_food65* [fw=wehh], by (id_sus20)
+tempfile kab10
+save `kab10', replace
+
+for var  hh_food65: gen perc_food65=X/ hh20
+
+for var  perc_food65*: replace X=X*100
+save "SavingFolderPath\susenas20_foodexp65_adm2.dta", replace
