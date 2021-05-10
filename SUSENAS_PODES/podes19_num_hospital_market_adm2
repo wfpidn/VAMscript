@@ -1,0 +1,28 @@
+clear
+set mem 300m
+capture log close
+set more off
+set linesize 255
+pause off
+
+
+/**	
+1. Number of hospital at adm2 level
+2. Number of market/buying facilities at adm2 level
+
+**/
+
+** PODES 2019
+use  r101*  r102* r502ak2* r801* using "folderpath\podes2019_b1b8.dta", clear
+
+gen id_kab= r101*100+ r102
+destring, replace
+
+gen hospital= r502ak2
+gen market=r801bk2+r801ck2+r801dk2+r801ek2+r801jk2
+
+collapse (sum) hospital market, by (id_kab)
+tempfile kab10
+save `kab10', replace
+
+save "savingfolderpath\dataname.dta", replace
