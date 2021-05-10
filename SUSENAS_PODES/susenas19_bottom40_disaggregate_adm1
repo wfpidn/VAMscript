@@ -1,0 +1,252 @@
+clear
+set more off
+
+cd "directoryfolderpath"
+
+use r101 r102 r301 r105 r1802 r1804 r1815* r1901* r2101 r2105 r2106 r2109 r2111 renum exp_cap r1809* fwt wi wi1 wi2  using  "susenasmar2019_kr.dta", replace
+
+gen kab=r101*100 + r102
+
+gen strata=r101*10000+r105*100+wi
+
+gen psu=r101*10000+r102*100+wi1
+
+gen ssu=r101*1000000+r102*10000+wi1*100+wi2
+
+svyset psu [pw=fwt], strata(strata) || ssu
+
+gen weind=round(fwt)
+
+xtile quant = exp_cap [pw=fwt], nq(5)
+
+** Sanitation **
+
+gen sanit=((r1809a==1|r1809a==2) & (r1809b==1) & (r1809c==1|r1809c==2))
+svy: tab sanit, percent  
+
+** Living area **
+
+gen livarea=r1804/r301
+gen dense=(livarea < 8)
+
+gen rent=(r1802==2)
+
+** Wash hand **
+
+gen handwash=(inlist(r1815a,1,2)&r1815b==1&inrange(r1815c,1,5))
+svy: tab handwash, percent  
+
+** Social assistance **
+
+gen rastra=(r2101==1)
+gen kks=(r2105==1)
+gen pkh=(r2106==1)
+gen bpnt=(r2109==1)
+
+tempfile hh
+save `hh', replace
+
+use renum r101 r102 r105 r401 r403 r405 r407 r501 r701* r702 r703 r704 r705 r801 r802 r804 r808 r100* r1101_x r1102 r1103 fwt wi wi1 wi2 using "susenasmar2019_ki.dta", replace
+
+mmerge renum using `hh', ukeep(exp_cap sanit dense rent rastra kks pkh bpnt handwash)
+drop if _merge!=3 
+drop _merge
+
+merge m:1 r101 r105 using "2019_povline_prov_UR.dta"
+drop if _merge!=3 
+drop _merge
+
+destring povline, replace
+
+ren (r401 r405 r407 r501 r704 r705 r801 r802 r804 r808) (nart gender age nik sector status mobile_use mobile_own inet bank)
+
+gen kab=r101*100 + r102
+
+gen strata=r101*10000+r105*100+wi
+
+gen psu=r101*10000+r102*100+wi1
+
+gen ssu=r101*1000000+r102*10000+wi1*100+wi2
+
+svyset psu [pw=fwt], strata(strata) || ssu
+
+gen weind=round(fwt)
+
+** Food Expenditure > 65% **
+
+merge m:1 renum using "folderpath\susenasmar2019_kp_43.dta"
+
+gen foodexp=(food/expend)> 0.65
+
+** Work **
+
+gen work=(age>=15 & r701_a=="A")
+
+** Poverty **
+
+gen poor = (exp_cap < povline)
+
+** Exp quantile **
+
+gen rexp_cap = 637260 / povline * exp_cap
+xtile quant = rexp_cap [pw=fwt], nq(5)
+gen bot40=(inlist(quant,1,2))
+
+
+** Work sectors **
+
+label define sector 1 "Pertanian tanaman padi dan palawija" 2 "Hortikultura" 3 "Perkebunan" 4 "Perikanan" 5 "Peternakan" 6 "Kehutanan dan pertanian lainnya" ///
+7 "Pertambangan dan penggalian" ///
+8 "Industri pengolahan" ///
+9 "Pengadaan listrik, gas, uap/air panas, dan udara dingin" ///
+10 "Pengelolaan air, pengelolaan air limbah, pengelolaan dan daur ulang sampah, dan aktivitas remediasi" ///
+11 "Konstruksi" ///
+12 "Perdagangan besar dan eceran, reparasi dan perawatan mobil dan sepeda motor" ///
+13 "Pengangkutan dan pergudangan" ///
+14 "Penyediaan akomodasi dan penyediaan makan minum" ///
+15 "Informasi dan komunikasi" ///
+16 "Aktivitas keuangan dan asuransi" ///
+17 "Real estate" ///
+18 "Aktivitas profesional, ilmiah, dan teknis" ///
+19 "Aktivitas penyewaan dan sewa guna tanpa hak opsi, ketenagakerjaan, agen perjalanan, dan penunjang usaha lainnya" ///
+20 "Administrasi pemerintahan, pertahanan, dan jaminan sosial wajib" ///
+21 "Pendidikan" ///
+22 "Aktivitas kesehatan manusia dan aktivitas sosial" ///
+23 "Kesenian, hiburan, dan rekreasi" ///
+24 "Aktivitas jasa lainnya" ///
+25 "Aktivitas rumah tangga sebagai pemberi kerja" ///
+26 "Aktivitas badan internasional dan badan ekstra internasional lainnya" 
+
+label values sector sector
+
+recode sector (1/6 = 1), g(sector2)
+
+label define sector2 1 "Pertanian" ///
+7 "Pertambangan dan penggalian" ///
+8 "Industri pengolahan" ///
+9 "Pengadaan listrik, gas, uap/air panas, dan udara dingin" ///
+10 "Pengelolaan air, pengelolaan air limbah, pengelolaan dan daur ulang sampah, dan aktivitas remediasi" ///
+11 "Konstruksi" ///
+12 "Perdagangan besar dan eceran, reparasi dan perawatan mobil dan sepeda motor" ///
+13 "Pengangkutan dan pergudangan" ///
+14 "Penyediaan akomodasi dan penyediaan makan minum" ///
+15 "Informasi dan komunikasi" ///
+16 "Aktivitas keuangan dan asuransi" ///
+17 "Real estate" ///
+18 "Aktivitas profesional, ilmiah, dan teknis" ///
+19 "Aktivitas penyewaan dan sewa guna tanpa hak opsi, ketenagakerjaan, agen perjalanan, dan penunjang usaha lainnya" ///
+20 "Administrasi pemerintahan, pertahanan, dan jaminan sosial wajib" ///
+21 "Pendidikan" ///
+22 "Aktivitas kesehatan manusia dan aktivitas sosial" ///
+23 "Kesenian, hiburan, dan rekreasi" ///
+24 "Aktivitas jasa lainnya" ///
+25 "Aktivitas rumah tangga sebagai pemberi kerja" ///
+26 "Aktivitas badan internasional dan badan ekstra internasional lainnya" 
+
+label values sector2 sector2
+
+** Work status **
+
+label define status 1 "Berusaha sendiri" ///
+2 "Berusaha dibantu buruh tidak tetap/buruh tidak dibayar" ///
+3 "Berusaha dibantu buruh tetap/buruh dibayar" ///
+4 "Buruh/karyawan/pegawai" ///
+5 "Pekerja bebas" ///
+6 "Pekerja keluarga atau tidak dibayar"
+
+label values status status
+
+recode status (3 4 = 0) (1 2 5 6 = 1), g(informal)
+
+label define informal 0 "Formal" 1 "Informal"
+label values informal informal
+
+replace status=. if work==0
+replace informal=. if work==0
+
+label var status "Work status"
+label var informal "Work status (Formal/Informal)"
+
+
+** Gender **
+
+label define gender 1 "Male" 2 "Female"
+label values gender gender
+label var gender "Gender"
+
+
+** Age category **
+
+egen agecat = cut(age), at(0,5,15,30,45,60,100) label
+label var agecat "Age category"
+
+
+** Morbidity **
+
+gen morbidity=(r1102==1 & r1103==1)
+label var morbidity "Experienced disruption in daily activities to due illness over the past month"
+
+
+** Access to health insurance **
+
+gen insure=(r1101_x!="X")
+label var insure "Access to health insurance"
+
+** Consumption class = cut-off point taken from Bappenas **
+
+egen concat = cut(exp_cap), at(0,425250,641000,1450000,7250000,100000000) icode
+label define concat 0 "Poor" 1 "Vulnerable" 2 "Aspiring middle class" 3 "Middle class" 4 "Upper class"
+label values concat concat
+label var concat "Comsumption class"
+
+** Disability **
+
+egen dis=rsum(r100*)
+gen disability=(dis!=48)
+replace disability=. if dis==0
+drop dis
+
+
+********
+/*
+svy: tab status quant, percent col format(%14.3gc)
+svy: tab status concat, percent col format(%14.3gc)
+svy: tab informal concat, percent col format(%14.3gc)
+svy: tab informal concat, percent row format(%14.3gc)
+*/
+
+svy: tab  foodexp gender if bot40==1, percent col
+svy: tab  foodexp gender if bot40==1, percent row
+
+svy, subpop(bot40): tab prov, count format(%19.0fc)
+svy: mean bot40, over(r101)
+
+svy: tab status quant, percent col format(%14.3gc)
+svy: tab status bot40, percent col format(%14.3gc)
+
+svy: tab informal bot40 , percent col format(%14.3gc)
+svy: tab informal bot40 , percent row format(%14.3gc)
+
+
+svy: tab bot40 gender, percent col format(%14.3gc)
+svy: tab gender if bot40==1, percent format(%14.3gc)
+svy: tab poor gender if bot40==1, percent col format(%14.3gc)
+svy: tab informal gender if bot40==1, percent col format(%14.3gc)
+svy: tab agecat gender if bot40==1, percent format(%14.3gc) col
+svy, subpop(if bot40==1 & work==1): tab sector2 gender, percent format(%14.3gc) col
+svy: tab morbidity gender if bot40==1, percent format(%14.3gc) col
+svy: tab disability gender if bot40==1, percent format(%14.3gc) col
+svy: tab disability gender if bot40==1, percent format(%14.3gc) row
+svy: tab insur gender if bot40==1, percent format(%14.3gc) col
+svy: tab nik gender if bot40==1, percent format(%14.3gc) col
+svy: tab mobile_use gender if bot40==1 & age>=15, percent format(%14.3gc) col
+svy: tab inet gender if bot40==1 & age>=15, percent format(%14.3gc) col
+svy: tab mobile_use gender if bot40==1 & age>=15, percent format(%14.3gc) col
+svy: tab bank gender if bot40==1 & age>=15, percent format(%14.3gc) col
+
+svy: tab agecat insur if bot40==1, percent format(%14.3gc) row
+svy: tab agecat morbidity if bot40==1, percent format(%14.3gc) row
+
+svy, subpop(bot40): mean handwash dense rent rastra kks pkh bpnt
+
+e
