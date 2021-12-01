@@ -13,7 +13,7 @@ library(expss)
 # Convert data from SPSS to R format
 myfies17 <- as.data.frame(read.spss("FIES17RT.sav", use.value.labels = FALSE))
 # Recode code 5 in R1501 - R15008 to code 0
-myfies17[,5:12][myfies17[,5:12]==5] <- 0
+myfies17[,5:12][myfies17[,5:12]==5] <- 0 # column number could be adjusted following the dataset
 # Recode code 8 in R1501 - R1508 to "missing value"
 myfies17[,5:12][myfies17[,5:12]==8] <- NA
 # Recode code 9 in R1501 - R1508 to "missing value"
@@ -46,7 +46,8 @@ screeplot(prcomp(result$mat.res), type = "lines")
 
 # Call FIES Global Standard
 load("FIES_glob_st.RData")
-tolerance = 0.35
+tolerance = 0.35 #the tolerance could be adjusted if selected questions < 5
+
 # Adjust the infit value with the Global Standard data
 adj_b = (result$b - mean(result$b))/sd(result$b)*sd(fies.global.st)+
   mean(fies.global.st)
